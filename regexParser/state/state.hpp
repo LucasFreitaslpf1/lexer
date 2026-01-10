@@ -39,8 +39,8 @@ struct State
 			s2 = out_2->to_string();
 		}
 
-		std::string s3 = "State: char: " + std::to_string(symbol) + " " + type_to_string(type) + "\n" + "{out1:" + s1 +
-						 "\n" + "out2:" + s2 + "}";
+		std::string s3 = "State: char: " + std::to_string(symbol) + " " + type_to_string(type) + "\n" +
+						 "{\nout1:" + s1 + "\n" + "out2:" + s2 + "\n}";
 
 		return s3;
 	}

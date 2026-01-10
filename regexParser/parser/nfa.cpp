@@ -30,8 +30,8 @@ State *build_nfa(std::string &regexp)
 			frag->state = s1;
 
 			frag->pendent.push_back(&s2->out);
-			// frag->final_states.push_back(s2);
-			// frag->initial_states.push_back(s1);
+			frag->final_states.push_back(s2);
+			frag->initial_states.push_back(s1);
 			stack.push_back(frag);
 		}
 	}
@@ -55,10 +55,16 @@ void concatenation(std::vector<Fragment *> &stack, Fragment *frag)
 
 	f1->pendent.clear();
 
+	f1->clear_final_states();
+	f2->clear_initial_states();
+
 	f2->state->type = NOT_FINAL;
 
 	frag->state = f1->state;
 	frag->pendent = f2->pendent;
+
+	frag->add_final_states(f2->final_states);
+	frag->add_initial_states(f1->initial_states);
 
 	stack.push_back(frag);
 }

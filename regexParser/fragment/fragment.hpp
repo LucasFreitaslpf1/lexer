@@ -18,6 +18,9 @@ struct Fragment
 
 	std::vector<State **> pendent;
 
+	std::vector<State *> initial_states;
+	std::vector<State *> final_states;
+
 	std::string to_string()
 	{
 		std::string s;
@@ -26,4 +29,9 @@ struct Fragment
 
 		return "Fragment: {" + type_to_string(type) + "\n" + s + "}";
 	}
+
+	void clear_final_states();
+	void clear_initial_states();
+	void add_initial_states(std::vector<State *> vec);
+	void add_final_states(std::vector<State *> vec);
 };

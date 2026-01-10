@@ -3,6 +3,7 @@
 #include <ios>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "parser/parser.hpp"
 
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
 	// 	std::cerr << "Input file needed!";
 	// 	return -1;
 	// }
-	parse_regex(regex_file);
+	auto fa = parse_regex(regex_file);
 
 	return 0;
 }

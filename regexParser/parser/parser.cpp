@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-void parse_regex(std::string &file_name)
+State *parse_regex(std::string &file_name)
 {
 	std::vector<Fragment *> fragments;
 	std::fstream reg_file(file_name, std::ios_base::in);
@@ -23,6 +23,8 @@ void parse_regex(std::string &file_name)
 	std::cout << start->to_string() << std::endl;
 
 	reg_file.close();
+
+	return start;
 }
 
 std::string get_file_text(std::fstream &file)

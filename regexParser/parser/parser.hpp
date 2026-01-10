@@ -6,7 +6,7 @@
 #include <fstream>
 #include <string>
 
-void parse_regex(std::string &s);
+State *parse_regex(std::string &s);
 std::string get_file_text(std::fstream &file);
 std::string convert_to_postfix_notation(std::string &exp);
 State *build_nfa(std::string &regexp);
