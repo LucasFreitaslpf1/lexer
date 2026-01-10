@@ -1,0 +1,64 @@
+#include "parser.hpp"
+#include <vector>
+
+State *build_nfa(std::string &regexp)
+{
+	for (int i = 0; i < regexp.size(); i++)
+	{
+		if (regexp[i] == '\0')
+			regexp.erase(i, 1);
+	}
+
+	std::vector<Fragment *> stack;
+	char empty = ' ';
+
+	for (int i = 0; i < regexp.size(); i++)
+	{
+		Fragment *frag = new Fragment();
+		switch (regexp[i])
+		{
+		case '.':
+			concatenation(stack, frag);
+			break;
+		default:
+			State *s1 = new State(regexp[i]);
+			s1->type = INITIAL;
+			State *s2 = new State(empty);
+			s2->type = FINAL;
+
+			s1->out = s2;
+			frag->state = s1;
+
+			frag->pendent.push_back(&s2->out);
+			// frag->final_states.push_back(s2);
+			// frag->initial_states.push_back(s1);
+			stack.push_back(frag);
+		}
+	}
+
+	return stack.back()->state;
+}
+
+void concatenation(std::vector<Fragment *> &stack, Fragment *frag)
+{
+	Fragment *f2 = stack.back();
+	stack.pop_back();
+	Fragment *f1 = stack.back();
+	stack.pop_back();
+
+	State *s = new State(' ');
+
+	for (int i = 0; i < f1->pendent.size(); i++)
+	{
+		*f1->pendent[i] = f2->state;
+	}
+
+	f1->pendent.clear();
+
+	f2->state->type = NOT_FINAL;
+
+	frag->state = f1->state;
+	frag->pendent = f2->pendent;
+
+	stack.push_back(frag);
+}
