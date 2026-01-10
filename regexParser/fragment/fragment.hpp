@@ -34,4 +34,10 @@ struct Fragment
 	void clear_initial_states();
 	void add_initial_states(std::vector<State *> vec);
 	void add_final_states(std::vector<State *> vec);
+
+	void add_final_states(State *s);
+	void add_initial_states(State *s);
+	void add_pendent(State *s);
+
+	void set_pendent(State *s);
 };

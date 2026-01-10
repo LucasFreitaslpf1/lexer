@@ -1,3 +1,4 @@
+#include "automata/automata.hpp"
 #include "parser/parser.hpp"
 #include <fstream>
 #include <ios>
@@ -18,7 +19,9 @@ int main(int argc, char *argv[])
 	// 	std::cerr << "Input file needed!";
 	// 	return -1;
 	// }
-	auto fa = parse_regex(regex_file);
+	Automata automata;
+	automata.state = parse_regex(regex_file);
 
+	std::cout << (automata.run("abab") ? "Sim" : "Não") << std::endl;
 	return 0;
 }

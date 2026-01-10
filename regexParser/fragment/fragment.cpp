@@ -20,7 +20,6 @@ void Fragment::clear_initial_states()
 
 	initial_states.clear();
 }
-
 void Fragment::clear_final_states()
 {
 
@@ -40,4 +39,29 @@ void Fragment::add_initial_states(std::vector<State *> vec)
 void Fragment::add_final_states(std::vector<State *> vec)
 {
 	final_states.insert(final_states.end(), vec.begin(), vec.end());
+}
+
+void Fragment::set_pendent(State *s)
+{
+	for (int i = 0; i < pendent.size(); i++)
+	{
+		*pendent[i] = s;
+	}
+
+	pendent.clear();
+}
+
+void Fragment::add_final_states(State *s)
+{
+	final_states.push_back(s);
+}
+
+void Fragment::add_initial_states(State *s)
+{
+	initial_states.push_back(s);
+}
+
+void Fragment::add_pendent(State *s)
+{
+	pendent.push_back(&s);
 }

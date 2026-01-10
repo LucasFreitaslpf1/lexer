@@ -21,7 +21,6 @@ struct State
 	State *out = nullptr;
 	State *out_2 = nullptr;
 	StateType type = NOT_FINAL;
-	bool pendencies[2] = {false, false};
 
 	State(char _symb);
 

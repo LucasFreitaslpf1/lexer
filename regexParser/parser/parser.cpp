@@ -18,9 +18,9 @@ State *parse_regex(std::string &file_name)
 
 	std::string regexp = convert_to_postfix_notation(s);
 
-	State *start = build_nfa(regexp);
+	std::cout << regexp << std::endl;
 
-	std::cout << start->to_string() << std::endl;
+	State *start = build_nfa(regexp);
 
 	reg_file.close();
 
@@ -111,7 +111,7 @@ std::string convert_to_postfix_notation(std::string &exp)
 			else
 			{
 
-				while (!op_stack.empty())
+				while (!op_stack.empty() && op_stack.back() != '(')
 				{
 					int proc_stack, proc_postfix;
 
