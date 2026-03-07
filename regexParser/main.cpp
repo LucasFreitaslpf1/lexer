@@ -22,6 +22,6 @@ int main(int argc, char *argv[])
 	Automata automata;
 	automata.state = parse_regex(regex_file);
 
-	std::cout << (automata.run("abab") ? "Sim" : "Não") << std::endl;
+	std::cout << (automata.run("0asd") ? "Sim" : "Não") << std::endl;
 	return 0;
 }

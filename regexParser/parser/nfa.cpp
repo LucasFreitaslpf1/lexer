@@ -34,22 +34,25 @@ State *build_nfa(std::string &regexp)
 			zero_or_one(stack, frag);
 			break;
 		default:
-			State *s1 = new State(regexp[i]);
-			s1->type = INITIAL;
-			State *s2 = new State(empty);
-			s2->type = FINAL;
+			State *s = new State(regexp[i]);
+			s->type = NOT_FINAL;
 
-			s1->out = s2;
-			frag->state = s1;
+			frag->state = s;
+			frag->p = &s->out;
+			frag->pendent.push_back(&s->out);
 
-			frag->pendent.push_back(&s2->out);
-			frag->final_states.push_back(s2);
-			frag->initial_states.push_back(s1);
 			stack.push_back(frag);
 		}
 	}
 
-	return stack.back()->state;
+	auto frag = stack.back();
+
+	State *final = new State(' ');
+	final->type = FINAL;
+
+	frag->set_pendent(final);
+
+	return frag->state;
 }
 
 void concatenation(std::vector<Fragment *> &stack, Fragment *frag)
@@ -60,17 +63,14 @@ void concatenation(std::vector<Fragment *> &stack, Fragment *frag)
 	stack.pop_back();
 
 	f1->set_pendent(f2->state);
+	f1->p = &f2->state;
 
-	f1->clear_final_states();
-	f2->clear_initial_states();
-
-	f2->state->type = NOT_FINAL;
+	if (f2->state->type == FINAL)
+		f2->state->type = NOT_FINAL;
 
 	frag->state = f1->state;
 	frag->pendent = f2->pendent;
-
-	frag->add_final_states(f2->final_states);
-	frag->add_initial_states(f1->initial_states);
+	frag->p = f2->p;
 
 	stack.push_back(frag);
 }
@@ -83,32 +83,20 @@ void alternation(std::vector<Fragment *> &stack, Fragment *frag)
 	stack.pop_back();
 
 	State *s = new State(' ');
-	s->type = INITIAL;
+	s->type = SPLIT;
 
-	State *s2 = new State(' ');
-	s2->type = SPLIT;
+	s->out = f1->state;
+	s->out_2 = f2->state;
 
-	State *s3 = new State(' ');
-	s3->type = FINAL;
+	if (f1->state->type == FINAL)
+		f1->state->type = NOT_FINAL;
 
-	s->out = s2;
-
-	s2->out = f1->state;
-	f1->clear_initial_states();
-
-	s2->out_2 = f2->state;
-	f2->clear_initial_states();
-
-	f1->set_pendent(s3);
-	f2->set_pendent(s3);
-
-	f1->clear_final_states();
-	f2->clear_final_states();
+	if (f2->state->type == FINAL)
+		f2->state->type = NOT_FINAL;
 
 	frag->state = s;
-	frag->pendent.push_back(&s3->out);
-	frag->initial_states.push_back(s);
-	frag->final_states.push_back(s3);
+	frag->append_pendent(f1->pendent);
+	frag->append_pendent(f2->pendent);
 
 	stack.push_back(frag);
 }
@@ -119,27 +107,16 @@ void zero_or_one(std::vector<Fragment *> &stack, Fragment *frag)
 	stack.pop_back();
 
 	State *s = new State(' ');
-	s->type = INITIAL;
+	s->type = SPLIT;
 
-	State *s1 = new State(' ');
-	s1->type = SPLIT;
+	if (f->state->type == FINAL)
+		f->state->type = NOT_FINAL;
 
-	s->out = s1;
-
-	State *s2 = new State(' ');
-	s2->type = FINAL;
-
-	s1->out = f->state;
-	s1->out_2 = s2;
-
-	f->set_pendent(s2);
-	f->clear_initial_states();
-	f->clear_final_states();
-
+	s->out = f->state;
 	frag->state = s;
-	frag->add_pendent(s2->out);
-	frag->add_initial_states(s);
-	frag->add_final_states(s2);
+
+	frag->append_pendent(f->pendent);
+	frag->add_pendent(&s->out_2);
 
 	stack.push_back(frag);
 }
@@ -152,18 +129,12 @@ void one_or_more(std::vector<Fragment *> &stack, Fragment *frag)
 	State *s = new State(' ');
 	s->type = SPLIT;
 
-	State *s1 = new State(' ');
-	s1->type = FINAL;
-
 	s->out = f->state;
-	s->out_2 = s1;
 
-	f->clear_final_states();
 	f->set_pendent(s);
 
-	frag->add_final_states(s1);
-	frag->add_pendent(s1->out);
 	frag->state = f->state;
+	frag->add_pendent(&s->out_2);
 
 	stack.push_back(frag);
 }
@@ -174,25 +145,16 @@ void zero_or_more(std::vector<Fragment *> &stack, Fragment *frag)
 	stack.pop_back();
 
 	State *s = new State(' ');
-	s->type = INITIAL;
+	s->type = SPLIT;
 
-	State *s1 = new State(' ');
-	s1->type = SPLIT;
+	if (f->state->type == FINAL)
+		f->state->type = NOT_FINAL;
 
-	State *s2 = new State(' ');
-	s2->type = FINAL;
-
-	s->out = s1;
-	s1->out = f->state;
-	s1->out_2 = s2;
-
-	f->set_pendent(s1);
-	f->clear_initial_states();
-	f->clear_final_states();
+	s->out = f->state;
+	f->set_pendent(s);
 
 	frag->state = s;
-	frag->add_pendent(s2->out);
-	frag->add_final_states(s2);
+	frag->add_pendent(&s->out_2);
 
 	stack.push_back(frag);
 }

@@ -15,6 +15,7 @@ struct Fragment
 	State *state = nullptr;
 	FragType type;
 	char op;
+	State **p;
 
 	std::vector<State **> pendent;
 
@@ -37,7 +38,8 @@ struct Fragment
 
 	void add_final_states(State *s);
 	void add_initial_states(State *s);
-	void add_pendent(State *s);
+	void add_pendent(State **s);
 
 	void set_pendent(State *s);
+	void append_pendent(std::vector<State **> &pend);
 };

@@ -61,7 +61,12 @@ void Fragment::add_initial_states(State *s)
 	initial_states.push_back(s);
 }
 
-void Fragment::add_pendent(State *s)
+void Fragment::add_pendent(State **s)
 {
-	pendent.push_back(&s);
+	pendent.push_back(s);
+}
+
+void Fragment::append_pendent(std::vector<State **> &pend)
+{
+	pendent.insert(pendent.begin(), pend.begin(), pend.end());
 }

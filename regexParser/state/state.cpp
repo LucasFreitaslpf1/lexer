@@ -19,5 +19,7 @@ std::string type_to_string(StateType t)
 		return "FINAL";
 	case INITIAL:
 		return "INITIAL";
+	case SPLIT:
+		return "SPLIT";
 	}
 }
