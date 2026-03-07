@@ -42,39 +42,6 @@ void Automata::step(char c)
 		}
 	}
 }
-
-void Automata::handle_empty_state(State *s, std::set<State *> &empty_states, char c)
-{
-	if (!s)
-		return;
-
-	if (s->symbol == ' ' && s->type != FINAL)
-	{
-		if (empty_states.find(s) != empty_states.end())
-		{
-			return;
-		}
-
-		if (s->out && s->out->type == FINAL)
-		{
-			next_states.insert(s->out);
-		}
-
-		if (s->out_2 && s->out_2->type == FINAL)
-		{
-			next_states.insert(s->out_2);
-		}
-
-		empty_states.insert(s);
-		handle_empty_state(s->out, empty_states, c);
-		handle_empty_state(s->out_2, empty_states, c);
-
-		return;
-	}
-
-	current_states.insert(s);
-}
-
 void Automata::add_state(State *s, std::set<State *> &state_list)
 {
 	if (!s)

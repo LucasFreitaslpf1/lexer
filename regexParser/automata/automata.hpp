@@ -14,5 +14,4 @@ struct Automata
 	void step(char c);
 	void add_state(State *s, std::set<State *> &state_list);
 	bool is_match();
-	void handle_empty_state(State *s, std::set<State *> &empty_states, char c);
 };
