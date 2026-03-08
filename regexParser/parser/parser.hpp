@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <vector>
 #define _PARSER_HPP_
 
@@ -18,3 +19,4 @@ void alternation(std::vector<Fragment *> &stack, Fragment *frag);
 void zero_or_one(std::vector<Fragment *> &stack, Fragment *frag);
 void one_or_more(std::vector<Fragment *> &stack, Fragment *frag);
 void zero_or_more(std::vector<Fragment *> &stack, Fragment *frag);
+void symbol(std::vector<Fragment *> &stack, Fragment *frag, char c);

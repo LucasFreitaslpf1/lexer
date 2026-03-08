@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <iostream>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -10,11 +10,12 @@
 std::vector<std::pair<std::string, std::string>> Automata::match(std::string input)
 {
 	std::vector<std::pair<std::string, std::string>> output;
-	State *last = nullptr;
-	std::string last_substr;
 
 	for (int i = 0; i < input.size(); i++)
 	{
+		State *last = nullptr;
+		std::string last_substr = "";
+
 		for (int j = i; j < input.size(); j++)
 		{
 			auto substr = input.substr(i, j - i + 1);
@@ -22,23 +23,17 @@ std::vector<std::pair<std::string, std::string>> Automata::match(std::string inp
 
 			if (s)
 			{
-				last = s;
-				last_substr = substr;
-			}
-
-			if (!s && last)
-			{
-				if (substr.size() == 1)
+				if (substr.size() > last_substr.size())
 				{
-					break;
+					last = s;
+					last_substr = substr;
 				}
-				else
-				{
-					i = j - 1;
-				}
-				output.push_back({last->token, last_substr});
-				break;
 			}
+		}
+		if (last)
+		{
+			output.push_back({last->token, last_substr});
+			i = i + last_substr.size() - 1;
 		}
 	}
 

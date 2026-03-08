@@ -6,8 +6,11 @@ Fragment *build_nfa(std::string &regexp)
 {
 	for (int i = 0; i < regexp.size(); i++)
 	{
-		if (regexp[i] == '\0')
+		if (regexp[i] == '\0' || regexp[i] == '\000')
+		{
 			regexp.erase(i, 1);
+			i = 0;
+		}
 	}
 
 	std::vector<Fragment *> stack;
@@ -33,15 +36,12 @@ Fragment *build_nfa(std::string &regexp)
 		case '?':
 			zero_or_one(stack, frag);
 			break;
+		case '\\':
+			symbol(stack, frag, regexp[i + 1]);
+			i += 1;
+			break;
 		default:
-			State *s = new State(regexp[i]);
-			s->type = NOT_FINAL;
-
-			frag->state = s;
-			frag->p = &s->out;
-			frag->add_pendent(&s->out);
-
-			stack.push_back(frag);
+			symbol(stack, frag, regexp[i]);
 		}
 	}
 
@@ -157,6 +157,18 @@ void zero_or_more(std::vector<Fragment *> &stack, Fragment *frag)
 
 	frag->state = s;
 	frag->add_pendent(&s->out_2);
+
+	stack.push_back(frag);
+}
+
+void symbol(std::vector<Fragment *> &stack, Fragment *frag, char c)
+{
+	State *s = new State(c);
+	s->type = NOT_FINAL;
+
+	frag->state = s;
+	frag->p = &s->out;
+	frag->add_pendent(&s->out);
 
 	stack.push_back(frag);
 }

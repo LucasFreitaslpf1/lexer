@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	while (std::cin >> input)
 	{
 		text += input;
-		text += " ";
+		text += "\n";
 	}
 
 	auto v = automata.match(text);
@@ -28,6 +28,5 @@ int main(int argc, char *argv[])
 	{
 		std::cout << v[i].first << " " << v[i].second << "\n";
 	}
-	// std::cout << (s ? s->token + " " + input + "\n" : "");
 	return 0;
 }

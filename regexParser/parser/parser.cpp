@@ -2,13 +2,15 @@
 #include "../state/state.hpp"
 
 #include <algorithm>
+#include <assert.h>
 #include <cctype>
 #include <cstring>
 #include <iostream>
 #include <iterator>
-#include <ostream>
 #include <string>
 #include <vector>
+
+std::map<std::string, std::string> token_regexp;
 
 State *parse_regex(std::string &file_name)
 {
@@ -38,15 +40,38 @@ std::vector<Fragment *> parse_file(std::fstream &file)
 {
 	std::string line;
 	std::vector<Fragment *> result;
+	int line_count = 0;
 
 	while (std::getline(file, line))
 	{
+		line_count++;
+
+		if (line.empty())
+			continue;
+
 		auto colon = line.find(':');
+
+		if (line[colon - 1] != ' ' || line[colon + 1] != ' ')
+		{
+			std::cout << "Sytax error in line " << line_count
+					  << ", probably spaces between token name, separator and expression missing!\n";
+			return result;
+		}
 
 		std::string token_name = line.substr(0, colon - 1);
 		std::string regexp = line.substr(colon + 2);
 		regexp = pre_processing(regexp);
+
+		// std::cout << regexp << "\n";
+		token_regexp[token_name] = regexp;
+
+		if (token_name[0] == '_')
+		{
+			continue;
+		}
+
 		regexp = convert_to_postfix_notation(regexp);
+		// std::cout << regexp << "\n";
 
 		auto frag = build_nfa(regexp);
 		frag->final->token = token_name;
@@ -82,22 +107,106 @@ std::string pre_processing(std::string &exp)
 		// [A-Z] or [a-z] or [0-9]
 		if (exp[i] == '[')
 		{
-			output += "(";
-
-			char begin = exp[i + 1];
-			char end = exp[i + 3];
-
-			for (char i = begin; i <= end; i++)
+			if (exp[i + 1] == ']')
 			{
-				output += '\"';
-				output += i;
-				output += '\"';
-				output += '|';
-			}
+				char begin = (char)33;
+				char end = (char)127;
+				output += "(";
 
-			output.pop_back();
-			output += ")";
-			i += 5;
+				for (char k = begin; k < end; k++)
+				{
+					if (k == '\\')
+					{
+						continue;
+					}
+					// std::cout << k << std::endl;
+					output += '\"';
+					output += k;
+					output += '\"';
+					output += '|';
+				}
+
+				output.pop_back();
+				output += ")";
+				i += 2;
+			}
+			else if (exp[i + 1] == '<')
+			{
+				std::string tok_name;
+
+				for (int j = i + 2; j < exp.size(); j++)
+				{
+					if (exp[j] == '>')
+						break;
+					tok_name += exp[j];
+				}
+				output += '(';
+
+				if (token_regexp.find(tok_name) != token_regexp.end())
+					output += token_regexp[tok_name];
+
+				output += ')';
+
+				i += 4 + tok_name.size();
+
+				assert(exp[i] != ']');
+				// [<TOKEN>]
+			}
+			else if (exp[i + 1] == '~')
+			{
+				std::vector<char> exclude;
+				int j = i + 2;
+
+				for (j = i + 2; j < exp.size(); j++)
+				{
+					if (exp[j] == ']')
+						break;
+
+					if (exp[j] == ',')
+						continue;
+
+					exclude.push_back(exp[j]);
+				}
+
+				char begin = (char)33;
+				char end = (char)127;
+				output += "(";
+
+				for (char k = begin; k < end; k++)
+				{
+					if (std::find(exclude.begin(), exclude.end(), k) != exclude.end() || k == '\\')
+					{
+						continue;
+					}
+					// std::cout << k << std::endl;
+					output += '\"';
+					output += k;
+					output += '\"';
+					output += '|';
+				}
+
+				output.pop_back();
+				output += ")";
+				i = j + 1;
+			}
+			else
+			{
+				output += "(";
+
+				char begin = exp[i + 1];
+				char end = exp[i + 3];
+				for (char k = begin; k <= end; k++)
+				{
+					output += '\"';
+					output += k;
+					output += '\"';
+					output += '|';
+				}
+
+				output.pop_back();
+				output += ")";
+				i += 5;
+			}
 		}
 
 		output += exp[i];
@@ -111,8 +220,7 @@ std::string convert_to_postfix_notation(std::string &exp)
 
 	char operators_can_concat[] = {')', '[', '?', '*', '+'};
 	char operators_in_exp[] = {
-		'(',
-		')',
+		'(', ')', '*', '|', '"', '.', '?', '+', '\\',
 	};
 
 	std::string postfix;
@@ -226,8 +334,9 @@ std::string convert_to_postfix_notation(std::string &exp)
 
 		if (postfix[i] == '\\')
 		{
+			output += "\\";
 			output += postfix[i + 1];
-			i += 2;
+			i += 1;
 			continue;
 		}
 
