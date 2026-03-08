@@ -16,7 +16,9 @@ State *parse_regex(std::string &file_name)
 	std::fstream reg_file(file_name, std::ios_base::in);
 	std::string s = get_file_text(reg_file);
 
-	std::string regexp = convert_to_postfix_notation(s);
+	std::string r = pre_processing(s);
+
+	std::string regexp = convert_to_postfix_notation(r);
 
 	std::cout << regexp << std::endl;
 
@@ -40,6 +42,52 @@ std::string get_file_text(std::fstream &file)
 	return str_out;
 }
 
+std::string pre_processing(std::string &exp)
+{
+	std::string output;
+
+	for (int i = 0; i < exp.size(); i++)
+	{
+		if (exp[i] == '\"')
+		{
+			for (int j = i + 1; j < exp.size(); j++)
+			{
+				if (exp[j] == '\"')
+				{
+					i = j + 1;
+					break;
+				}
+				output += exp[j];
+			}
+		}
+
+		// [A-Z] or [a-z] or [0-9]
+		if (exp[i] == '[')
+		{
+			output += "(";
+
+			char begin = exp[i + 1];
+			char end = exp[i + 3];
+
+			for (char i = begin; i <= end; i++)
+			{
+				output += '\"';
+				output += i;
+				output += '\"';
+				output += '|';
+			}
+
+			output.pop_back();
+			output += ")";
+			i += 5;
+		}
+
+		output += exp[i];
+	}
+
+	return output;
+}
+
 std::string convert_to_postfix_notation(std::string &exp)
 {
 
@@ -53,8 +101,8 @@ std::string convert_to_postfix_notation(std::string &exp)
 		if (exp[i] == '\"')
 		{
 
-			if (std::find(std::begin(operators_can_concat), std::end(operators_can_concat), exp[i - 1]) !=
-					std::end(operators_can_concat) ||
+			if (i > 0 && std::find(std::begin(operators_can_concat), std::end(operators_can_concat), exp[i - 1]) !=
+							 std::end(operators_can_concat) ||
 				std::isalpha(postfix.back()))
 			{
 				postfix += '.';

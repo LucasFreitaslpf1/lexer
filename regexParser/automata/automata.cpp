@@ -1,11 +1,17 @@
 #include "automata.hpp"
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <iostream>
 #include <utility>
 
 bool Automata::run(std::string input)
 {
+	while (std::isspace(input.back()))
+	{
+		input.pop_back();
+	}
+
 	add_state(state, current_states);
 
 	for (int i = 0; i < input.size(); i++)

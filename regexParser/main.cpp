@@ -1,10 +1,7 @@
 #include "automata/automata.hpp"
 #include "parser/parser.hpp"
-#include <fstream>
-#include <ios>
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include "parser/parser.hpp"
 
@@ -14,14 +11,17 @@ std::string regex_file = "lang.reg";
 
 int main(int argc, char *argv[])
 {
-	// if (argc < 2)
-	// {
-	// 	std::cerr << "Input file needed!";
-	// 	return -1;
-	// }
+	std::string input, text;
+
+	while (std::getline(std::cin, input))
+	{
+		text += input;
+		text += " ";
+	}
+
 	Automata automata;
 	automata.state = parse_regex(regex_file);
 
-	std::cout << (automata.run("0asd") ? "Sim" : "Não") << std::endl;
+	std::cout << (automata.run(text) ? "Sim" : "Não") << std::endl;
 	return 0;
 }
