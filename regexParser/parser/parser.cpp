@@ -12,34 +12,49 @@
 
 State *parse_regex(std::string &file_name)
 {
-	std::vector<Fragment *> fragments;
 	std::fstream reg_file(file_name, std::ios_base::in);
-	std::string s = get_file_text(reg_file);
+	auto list = parse_file(reg_file);
+	Fragment *f = new Fragment();
 
-	std::string r = pre_processing(s);
+	if (list.size() == 1)
+	{
+		f = list.back();
+		return f->state;
+	}
 
-	std::string regexp = convert_to_postfix_notation(r);
-
-	std::cout << regexp << std::endl;
-
-	State *start = build_nfa(regexp);
+	while (list.size() > 1)
+	{
+		alternation(list, f);
+	}
 
 	reg_file.close();
 
-	return start;
+	f = list.back();
+
+	return f->state;
 }
 
-std::string get_file_text(std::fstream &file)
+std::vector<Fragment *> parse_file(std::fstream &file)
 {
-	std::string str_out, line;
+	std::string line;
+	std::vector<Fragment *> result;
 
-	while (file >> line)
+	while (std::getline(file, line))
 	{
-		str_out += line + " ";
-	}
-	str_out.pop_back();
+		auto colon = line.find(':');
 
-	return str_out;
+		std::string token_name = line.substr(0, colon - 1);
+		std::string regexp = line.substr(colon + 2);
+		regexp = pre_processing(regexp);
+		regexp = convert_to_postfix_notation(regexp);
+
+		auto frag = build_nfa(regexp);
+		frag->final->token = token_name;
+
+		result.push_back(frag);
+	}
+
+	return result;
 }
 
 std::string pre_processing(std::string &exp)
@@ -50,6 +65,8 @@ std::string pre_processing(std::string &exp)
 	{
 		if (exp[i] == '\"')
 		{
+			output += '\"';
+
 			for (int j = i + 1; j < exp.size(); j++)
 			{
 				if (exp[j] == '\"')
@@ -59,6 +76,7 @@ std::string pre_processing(std::string &exp)
 				}
 				output += exp[j];
 			}
+			output += '\"';
 		}
 
 		// [A-Z] or [a-z] or [0-9]
@@ -92,6 +110,11 @@ std::string convert_to_postfix_notation(std::string &exp)
 {
 
 	char operators_can_concat[] = {')', '[', '?', '*', '+'};
+	char operators_in_exp[] = {
+		'(',
+		')',
+	};
+
 	std::string postfix;
 
 	// Convert to expression with concatenations
@@ -120,6 +143,15 @@ std::string convert_to_postfix_notation(std::string &exp)
 				{
 					postfix += '.';
 				}
+
+				if (std::find(std::begin(operators_in_exp), std::end(operators_in_exp), exp[j]) !=
+					std::end(operators_in_exp))
+				{
+					postfix += '\\';
+					postfix += exp[j];
+					continue;
+				}
+
 				postfix += exp[j];
 			}
 		}
@@ -189,6 +221,13 @@ std::string convert_to_postfix_notation(std::string &exp)
 
 				op_stack.push_back(postfix[i]);
 			}
+			continue;
+		}
+
+		if (postfix[i] == '\\')
+		{
+			output += postfix[i + 1];
+			i += 2;
 			continue;
 		}
 

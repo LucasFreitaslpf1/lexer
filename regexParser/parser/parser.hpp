@@ -7,11 +7,12 @@
 #include <string>
 
 State *parse_regex(std::string &s);
-std::string get_file_text(std::fstream &file);
+std::vector<Fragment *> parse_file(std::fstream &file);
 std::string convert_to_postfix_notation(std::string &exp);
 std::string pre_processing(std::string &exp);
-State *build_nfa(std::string &regexp);
+Fragment *build_nfa(std::string &regexp);
 bool is_operator(char c);
+
 void concatenation(std::vector<Fragment *> &stack, Fragment *frag);
 void alternation(std::vector<Fragment *> &stack, Fragment *frag);
 void zero_or_one(std::vector<Fragment *> &stack, Fragment *frag);

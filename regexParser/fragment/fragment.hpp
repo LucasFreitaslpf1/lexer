@@ -16,6 +16,7 @@ struct Fragment
 	FragType type;
 	char op;
 	State **p;
+	State *final = nullptr;
 
 	std::vector<State **> pendent;
 

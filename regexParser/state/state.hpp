@@ -18,6 +18,8 @@ struct State
 
 	int id;
 	char symbol;
+	std::string token;
+
 	State *out = nullptr;
 	State *out_2 = nullptr;
 	StateType type = NOT_FINAL;

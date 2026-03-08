@@ -2,7 +2,7 @@
 #include <csignal>
 #include <vector>
 
-State *build_nfa(std::string &regexp)
+Fragment *build_nfa(std::string &regexp)
 {
 	for (int i = 0; i < regexp.size(); i++)
 	{
@@ -39,7 +39,7 @@ State *build_nfa(std::string &regexp)
 
 			frag->state = s;
 			frag->p = &s->out;
-			frag->pendent.push_back(&s->out);
+			frag->add_pendent(&s->out);
 
 			stack.push_back(frag);
 		}
@@ -47,12 +47,13 @@ State *build_nfa(std::string &regexp)
 
 	auto frag = stack.back();
 
-	State *final = new State(' ');
+	State *final = new State('\0');
 	final->type = FINAL;
 
 	frag->set_pendent(final);
+	frag->final = final;
 
-	return frag->state;
+	return frag;
 }
 
 void concatenation(std::vector<Fragment *> &stack, Fragment *frag)
@@ -82,7 +83,7 @@ void alternation(std::vector<Fragment *> &stack, Fragment *frag)
 	Fragment *f1 = stack.back();
 	stack.pop_back();
 
-	State *s = new State(' ');
+	State *s = new State('\0');
 	s->type = SPLIT;
 
 	s->out = f1->state;
@@ -106,7 +107,7 @@ void zero_or_one(std::vector<Fragment *> &stack, Fragment *frag)
 	Fragment *f = stack.back();
 	stack.pop_back();
 
-	State *s = new State(' ');
+	State *s = new State('\0');
 	s->type = SPLIT;
 
 	if (f->state->type == FINAL)
@@ -126,7 +127,8 @@ void one_or_more(std::vector<Fragment *> &stack, Fragment *frag)
 	Fragment *f = stack.back();
 	stack.pop_back();
 
-	State *s = new State(' ');
+	State *s = new State('\0');
+
 	s->type = SPLIT;
 
 	s->out = f->state;
@@ -144,7 +146,7 @@ void zero_or_more(std::vector<Fragment *> &stack, Fragment *frag)
 	Fragment *f = stack.back();
 	stack.pop_back();
 
-	State *s = new State(' ');
+	State *s = new State('\0');
 	s->type = SPLIT;
 
 	if (f->state->type == FINAL)

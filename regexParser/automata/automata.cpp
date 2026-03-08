@@ -3,14 +3,54 @@
 #include <cctype>
 #include <cmath>
 #include <iostream>
+#include <string>
 #include <utility>
+#include <vector>
 
-bool Automata::run(std::string input)
+std::vector<std::pair<std::string, std::string>> Automata::match(std::string input)
 {
-	while (std::isspace(input.back()))
+	std::vector<std::pair<std::string, std::string>> output;
+	State *last = nullptr;
+	std::string last_substr;
+
+	for (int i = 0; i < input.size(); i++)
 	{
-		input.pop_back();
+		for (int j = i; j < input.size(); j++)
+		{
+			auto substr = input.substr(i, j - i + 1);
+			State *s = run(substr);
+
+			if (s)
+			{
+				last = s;
+				last_substr = substr;
+			}
+
+			if (!s && last)
+			{
+				if (substr.size() == 1)
+				{
+					break;
+				}
+				else
+				{
+					i = j - 1;
+				}
+				output.push_back({last->token, last_substr});
+				break;
+			}
+		}
 	}
+
+	return output;
+}
+
+State *Automata::run(std::string input)
+{
+	// while (std::isspace(input.back()))
+	// {
+	// 	input.pop_back();
+	// }
 
 	add_state(state, current_states);
 
@@ -25,17 +65,19 @@ bool Automata::run(std::string input)
 	return is_match();
 }
 
-bool Automata::is_match()
+State *Automata::is_match()
 {
-
-	for (auto &s : current_states)
+	State *ret = nullptr;
+	for (auto s : current_states)
 	{
 		if (s->type == FINAL)
 		{
-			return true;
+			ret = s;
+			break;
 		}
 	}
-	return false;
+	current_states.clear();
+	return ret;
 }
 
 void Automata::step(char c)

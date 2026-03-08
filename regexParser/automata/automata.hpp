@@ -10,8 +10,9 @@ struct Automata
 	std::set<State *> current_states;
 	std::set<State *> next_states;
 
-	bool run(std::string input);
+	std::vector<std::pair<std::string, std::string>> match(std::string input);
+	State *run(std::string input);
 	void step(char c);
 	void add_state(State *s, std::set<State *> &state_list);
-	bool is_match();
+	State *is_match();
 };
