@@ -1,5 +1,3 @@
-COMMENT : "//".([] | " ")*.
-
 KW_AUTO : "auto"
 KW_DEFAULT : "default"
 KW_FLOAT : "float"
@@ -95,3 +93,6 @@ ASSIGN_ORBIT : "|="
 COMMA : ","
 HASHTAG : "#"
 DOUBLE_HASHTAG : "##"
+
+_BLOCK_COMMENT : "/*".([] | " ")*."*/"
+@COMMENT : ("//".([] | " " | "\n")*)|([<_BLOCK_COMMENT>]) 

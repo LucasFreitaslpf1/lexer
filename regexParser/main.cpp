@@ -5,8 +5,6 @@
 
 #include "parser/parser.hpp"
 
-// CONFIG VARS, THIS WILL BE KEPT AS GLOBAL VARIABLES FOR NOW UNTIL A CONFIG FILE IS CREATED
-
 std::string regex_file = "lang.reg";
 
 int main(int argc, char *argv[])
@@ -17,15 +15,18 @@ int main(int argc, char *argv[])
 	Automata automata;
 	automata.state = parse_regex(regex_file);
 
-	while (std::cin >> input)
+	while (std::getline(std::cin, input))
 	{
 		text += input;
 		text += "\n";
 	}
 
 	auto v = automata.match(text);
+
 	for (int i = 0; i < v.size(); i++)
 	{
+		if (v[i].first[0] == '@')
+			continue;
 		std::cout << v[i].first << " " << v[i].second << "\n";
 	}
 	return 0;

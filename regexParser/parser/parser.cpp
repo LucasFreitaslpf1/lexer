@@ -33,6 +33,7 @@ State *parse_regex(std::string &file_name)
 
 	f = list.back();
 
+
 	return f->state;
 }
 
@@ -62,7 +63,6 @@ std::vector<Fragment *> parse_file(std::fstream &file)
 		std::string regexp = line.substr(colon + 2);
 		regexp = pre_processing(regexp);
 
-		// std::cout << regexp << "\n";
 		token_regexp[token_name] = regexp;
 
 		if (token_name[0] == '_')
@@ -71,7 +71,6 @@ std::vector<Fragment *> parse_file(std::fstream &file)
 		}
 
 		regexp = convert_to_postfix_notation(regexp);
-		// std::cout << regexp << "\n";
 
 		auto frag = build_nfa(regexp);
 		frag->final->token = token_name;
@@ -119,7 +118,6 @@ std::string pre_processing(std::string &exp)
 					{
 						continue;
 					}
-					// std::cout << k << std::endl;
 					output += '\"';
 					output += k;
 					output += '\"';
@@ -150,7 +148,6 @@ std::string pre_processing(std::string &exp)
 				i += 4 + tok_name.size();
 
 				assert(exp[i] != ']');
-				// [<TOKEN>]
 			}
 			else if (exp[i + 1] == '~')
 			{
@@ -178,7 +175,6 @@ std::string pre_processing(std::string &exp)
 					{
 						continue;
 					}
-					// std::cout << k << std::endl;
 					output += '\"';
 					output += k;
 					output += '\"';

@@ -64,14 +64,12 @@ void concatenation(std::vector<Fragment *> &stack, Fragment *frag)
 	stack.pop_back();
 
 	f1->set_pendent(f2->state);
-	f1->p = &f2->state;
 
 	if (f2->state->type == FINAL)
 		f2->state->type = NOT_FINAL;
 
 	frag->state = f1->state;
 	frag->pendent = f2->pendent;
-	frag->p = f2->p;
 
 	stack.push_back(frag);
 }
@@ -167,7 +165,6 @@ void symbol(std::vector<Fragment *> &stack, Fragment *frag, char c)
 	s->type = NOT_FINAL;
 
 	frag->state = s;
-	frag->p = &s->out;
 	frag->add_pendent(&s->out);
 
 	stack.push_back(frag);
