@@ -9,7 +9,6 @@ std::string regex_file = "lang.reg";
 
 int main(int argc, char *argv[])
 {
-
 	std::string input, text;
 
 	Automata automata;
@@ -22,6 +21,7 @@ int main(int argc, char *argv[])
 	}
 
 	auto v = automata.match(text);
+	automata.clear();
 
 	for (int i = 0; i < v.size(); i++)
 	{

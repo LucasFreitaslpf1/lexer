@@ -1,8 +1,10 @@
 #include "parser.hpp"
+#include <cassert>
 #include <csignal>
+#include <memory>
 #include <vector>
 
-Fragment *build_nfa(std::string &regexp)
+Fragment build_nfa(std::string &regexp)
 {
 	for (int i = 0; i < regexp.size(); i++)
 	{
@@ -13,12 +15,13 @@ Fragment *build_nfa(std::string &regexp)
 		}
 	}
 
-	std::vector<Fragment *> stack;
+	std::vector<Fragment> stack;
 	char empty = ' ';
 
 	for (int i = 0; i < regexp.size(); i++)
 	{
-		Fragment *frag = new Fragment();
+		Fragment frag;
+
 		switch (regexp[i])
 		{
 		case '*':
@@ -45,127 +48,127 @@ Fragment *build_nfa(std::string &regexp)
 		}
 	}
 
-	auto frag = stack.back();
+	auto frag = std::move(stack.back());
 
 	State *final = new State('\0');
 	final->type = FINAL;
 
-	frag->set_pendent(final);
-	frag->final = final;
+	frag.set_pendent(final);
+	frag.final = final;
 
 	return frag;
 }
 
-void concatenation(std::vector<Fragment *> &stack, Fragment *frag)
+void concatenation(std::vector<Fragment> &stack, Fragment frag)
 {
-	Fragment *f2 = stack.back();
+	Fragment f2 = std::move(stack.back());
 	stack.pop_back();
-	Fragment *f1 = stack.back();
+	Fragment f1 = std::move(stack.back());
 	stack.pop_back();
 
-	f1->set_pendent(f2->state);
+	f1.set_pendent(f2.state);
 
-	if (f2->state->type == FINAL)
-		f2->state->type = NOT_FINAL;
+	if (f2.state->type == FINAL)
+		f2.state->type = NOT_FINAL;
 
-	frag->state = f1->state;
-	frag->pendent = f2->pendent;
+	frag.state = f1.state;
+	frag.pendent = f2.pendent;
 
 	stack.push_back(frag);
 }
 
-void alternation(std::vector<Fragment *> &stack, Fragment *frag)
+void alternation(std::vector<Fragment> &stack, Fragment frag)
 {
-	Fragment *f2 = stack.back();
+	Fragment f2 = std::move(stack.back());
 	stack.pop_back();
-	Fragment *f1 = stack.back();
+	Fragment f1 = std::move(stack.back());
 	stack.pop_back();
 
 	State *s = new State('\0');
 	s->type = SPLIT;
 
-	s->out = f1->state;
-	s->out_2 = f2->state;
+	s->out = f1.state;
+	s->out_2 = f2.state;
 
-	if (f1->state->type == FINAL)
-		f1->state->type = NOT_FINAL;
+	if (f1.state->type == FINAL)
+		f1.state->type = NOT_FINAL;
 
-	if (f2->state->type == FINAL)
-		f2->state->type = NOT_FINAL;
+	if (f2.state->type == FINAL)
+		f2.state->type = NOT_FINAL;
 
-	frag->state = s;
-	frag->append_pendent(f1->pendent);
-	frag->append_pendent(f2->pendent);
+	frag.state = s;
+	frag.append_pendent(f1.pendent);
+	frag.append_pendent(f2.pendent);
 
 	stack.push_back(frag);
 }
 
-void zero_or_one(std::vector<Fragment *> &stack, Fragment *frag)
+void zero_or_one(std::vector<Fragment> &stack, Fragment frag)
 {
-	Fragment *f = stack.back();
+	Fragment f = std::move(stack.back());
 	stack.pop_back();
 
 	State *s = new State('\0');
 	s->type = SPLIT;
 
-	if (f->state->type == FINAL)
-		f->state->type = NOT_FINAL;
+	if (f.state->type == FINAL)
+		f.state->type = NOT_FINAL;
 
-	s->out = f->state;
-	frag->state = s;
+	s->out = f.state;
+	frag.state = s;
 
-	frag->append_pendent(f->pendent);
-	frag->add_pendent(&s->out_2);
+	frag.append_pendent(f.pendent);
+	frag.add_pendent(&s->out_2);
 
 	stack.push_back(frag);
 }
 
-void one_or_more(std::vector<Fragment *> &stack, Fragment *frag)
+void one_or_more(std::vector<Fragment> &stack, Fragment frag)
 {
-	Fragment *f = stack.back();
+	Fragment f = std::move(stack.back());
 	stack.pop_back();
 
 	State *s = new State('\0');
 
 	s->type = SPLIT;
 
-	s->out = f->state;
+	s->out = f.state;
 
-	f->set_pendent(s);
+	f.set_pendent(s);
 
-	frag->state = f->state;
-	frag->add_pendent(&s->out_2);
+	frag.state = f.state;
+	frag.add_pendent(&s->out_2);
 
 	stack.push_back(frag);
 }
 
-void zero_or_more(std::vector<Fragment *> &stack, Fragment *frag)
+void zero_or_more(std::vector<Fragment> &stack, Fragment frag)
 {
-	Fragment *f = stack.back();
+	Fragment f = std::move(stack.back());
 	stack.pop_back();
 
 	State *s = new State('\0');
 	s->type = SPLIT;
 
-	if (f->state->type == FINAL)
-		f->state->type = NOT_FINAL;
+	if (f.state->type == FINAL)
+		f.state->type = NOT_FINAL;
 
-	s->out = f->state;
-	f->set_pendent(s);
+	s->out = f.state;
+	f.set_pendent(s);
 
-	frag->state = s;
-	frag->add_pendent(&s->out_2);
+	frag.state = s;
+	frag.add_pendent(&s->out_2);
 
 	stack.push_back(frag);
 }
 
-void symbol(std::vector<Fragment *> &stack, Fragment *frag, char c)
+void symbol(std::vector<Fragment> &stack, Fragment frag, char c)
 {
 	State *s = new State(c);
 	s->type = NOT_FINAL;
 
-	frag->state = s;
-	frag->add_pendent(&s->out);
+	frag.state = s;
+	frag.add_pendent(&s->out);
 
 	stack.push_back(frag);
 }

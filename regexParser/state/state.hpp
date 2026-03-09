@@ -45,4 +45,6 @@ struct State
 
 		return s3;
 	}
+
+	void clear();
 };

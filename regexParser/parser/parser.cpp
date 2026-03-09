@@ -7,6 +7,7 @@
 #include <cstring>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -16,12 +17,12 @@ State *parse_regex(std::string &file_name)
 {
 	std::fstream reg_file(file_name, std::ios_base::in);
 	auto list = parse_file(reg_file);
-	Fragment *f = new Fragment();
+	Fragment f;
 
 	if (list.size() == 1)
 	{
-		f = list.back();
-		return f->state;
+		f = (list.back());
+		return f.state;
 	}
 
 	while (list.size() > 1)
@@ -31,16 +32,17 @@ State *parse_regex(std::string &file_name)
 
 	reg_file.close();
 
-	f = list.back();
+	f = (list.back());
 
+	State *s = f.state;
 
-	return f->state;
+	return s;
 }
 
-std::vector<Fragment *> parse_file(std::fstream &file)
+std::vector<Fragment> parse_file(std::fstream &file)
 {
 	std::string line;
-	std::vector<Fragment *> result;
+	std::vector<Fragment> result;
 	int line_count = 0;
 
 	while (std::getline(file, line))
@@ -73,7 +75,7 @@ std::vector<Fragment *> parse_file(std::fstream &file)
 		regexp = convert_to_postfix_notation(regexp);
 
 		auto frag = build_nfa(regexp);
-		frag->final->token = token_name;
+		frag.final->token = token_name;
 
 		result.push_back(frag);
 	}

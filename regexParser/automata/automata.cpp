@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <set>
+#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
@@ -92,4 +94,34 @@ void Automata::add_state(State *s, std::set<State *> &state_list)
 	}
 
 	state_list.insert(s);
+}
+
+void Automata::clear()
+{
+	std::vector<State *> states;
+	std::stack<State *> stack;
+
+	stack.push(state);
+
+	while (!stack.empty())
+	{
+		auto curr = stack.top();
+		stack.pop();
+
+		if (std::find(states.begin(), states.end(), curr) == states.end())
+		{
+			states.push_back(curr);
+
+			if (curr->out)
+				stack.push(curr->out);
+
+			if (curr->out_2)
+				stack.push(curr->out_2);
+		}
+	}
+
+	for (State *s : states)
+	{
+		delete s;
+	}
 }
