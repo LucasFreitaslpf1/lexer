@@ -1,5 +1,5 @@
 # Lexer
-This is my attempt at creating a lexer in C++
+This is my attempt at creating a lexer in C++, my implementation was heavily inspired by what I've seen in Javacc
 
 There is still a lot of documentation to do about my implementation and also there are improvements to be made. But for now, know that to use it you need to specify your tokens in the `lang.reg` file. The program will read your tokens and your regular expressions from it and build a finite automata to identify the specified language. And the input file must be sent through the standard input. 
 
