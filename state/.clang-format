@@ -1,0 +1,5 @@
+BasedOnStyle: Microsoft
+AccessModifierOffset: '0'
+AlignAfterOpenBracket: Align
+TabWidth: '4'
+UseTab: Always
