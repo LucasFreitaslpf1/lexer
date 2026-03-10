@@ -11,6 +11,7 @@ You can use the lang file as an example to build your own regular expressions. M
 * Improve performance for large input files
 * Clean up the messy sections of the code
 * Implement command line arguments
+* Add more documentation about how the code works
 
 ## Some useful resources:
 
