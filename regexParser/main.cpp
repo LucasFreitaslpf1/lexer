@@ -2,6 +2,7 @@
 #include "parser/parser.hpp"
 #include <iostream>
 #include <string>
+#include <string_view>
 
 #include "parser/parser.hpp"
 
@@ -20,7 +21,8 @@ int main(int argc, char *argv[])
 		text += "\n";
 	}
 
-	auto v = automata.match(text);
+	std::string_view sv(text);
+	auto v = automata.match(sv);
 	automata.clear();
 
 	for (int i = 0; i < v.size(); i++)
