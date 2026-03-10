@@ -5,7 +5,15 @@ There is still a lot of documentation to do about my implementation and also the
 
 You can use the lang file as an example to build your own regular expressions. My implementation is a bit rough and it was all done for learning purposes. So any contributions are welcome.
 
-Some useful resources:
+## TO-DO:
+
+* Add more error checking, most of the time the program just crashes
+* Improve performance for large input files
+* Clean up the messy sections of the code
+* Implement command line arguments
+
+## Some useful resources:
+
 
 [Regular Expression Matching Can Be Simple And Fast](https://swtch.com/~rsc/regexp/regexp1.html) by Russ Cox
 
