@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = -g
+CXXFLAGS = -O3
 
 EXEC = a.out
 SRCS = $(wildcard *.cpp parser/*.cpp fragment/*.cpp state/*.cpp automata/*.cpp)
