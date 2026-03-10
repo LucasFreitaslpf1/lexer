@@ -2,13 +2,12 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <set>
 #include <stack>
 #include <string>
 #include <utility>
 #include <vector>
 
-std::vector<std::pair<std::string, std::string>> Automata::match(std::string input)
+std::vector<std::pair<std::string, std::string>> Automata::match(std::string_view &input)
 {
 	std::vector<std::pair<std::string, std::string>> output;
 
@@ -17,18 +16,16 @@ std::vector<std::pair<std::string, std::string>> Automata::match(std::string inp
 		State *last = nullptr;
 		std::string last_substr = "";
 
-		for (int j = i; j < input.size(); j++)
+		for (int j = input.size() - 1; j >= i; j--)
 		{
 			auto substr = input.substr(i, j - i + 1);
 			State *s = run(substr);
 
 			if (s)
 			{
-				if (substr.size() > last_substr.size())
-				{
-					last = s;
-					last_substr = substr;
-				}
+				last = s;
+				last_substr = substr;
+				break;
 			}
 		}
 		if (last)
@@ -41,7 +38,7 @@ std::vector<std::pair<std::string, std::string>> Automata::match(std::string inp
 	return output;
 }
 
-State *Automata::run(std::string input)
+State *Automata::run(std::string_view input)
 {
 	add_state(state, current_states);
 
@@ -81,7 +78,7 @@ void Automata::step(char c)
 		}
 	}
 }
-void Automata::add_state(State *s, std::set<State *> &state_list)
+void Automata::add_state(State *s, std::vector<State *> &state_list)
 {
 	if (!s)
 		return;
@@ -93,7 +90,10 @@ void Automata::add_state(State *s, std::set<State *> &state_list)
 		return;
 	}
 
-	state_list.insert(s);
+	if (std::find(state_list.begin(), state_list.end(), s) == state_list.end())
+	{
+		state_list.push_back(s);
+	}
 }
 
 void Automata::clear()
