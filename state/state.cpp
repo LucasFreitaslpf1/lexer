@@ -22,4 +22,5 @@ std::string type_to_string(StateType t)
 	case SPLIT:
 		return "SPLIT";
 	}
+	return "";
 }

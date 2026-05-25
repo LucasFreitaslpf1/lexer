@@ -31,5 +31,7 @@ int main(int argc, char *argv[])
 			continue;
 		std::cout << v[i].first << " " << v[i].second << "\n";
 	}
+	std::cout << "$" << " " << "$" << "\n";
+
 	return 0;
 }
